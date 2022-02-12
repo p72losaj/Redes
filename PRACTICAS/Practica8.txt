@@ -1,0 +1,294 @@
+PAQUETES IP
+
+1- Abre el fichero parte1.pcap. Observa los tipos de paquetes que se tiene, centra la atención
+en el primer paquete recibido y consultando la cabecera relativa al protocolo IP, rellena los
+siguientes datos del mismo
+
+a) Dirección IP origen: 150.214.117.76
+b) Dirección IP destino: 150.214.117.255
+c) Protocolo: UDP (17)
+d) Tamaño cabecera: 20 bytes
+e) Tamaño total: 78 bytes
+f) TTL: 128
+g) Identificador: 0x37bf (14271)
+
+
+2- Plantea un filtro en la captura para que solamente acepte aquellos paquetes que lleven
+estrictamente como dirección origen o destino la dirección IP de vuestra máquina.
+
+Dirección IP de mi máquina: 192.168.228.1
+
+respuesta: ip.addr in {192.168.228.1 192.168.228.1}
+
+3- Crea un filtro de captura para que solamente capture las consultas realizadas a los DNS (paquetes
+con origen o destino el puerto 53 UDP).
+
+Respuesta: udp.port in {53 53}
+
+4- Crea un filtro de captura que solamente capture las consultas realizadas a los DNS (paquetes con
+origen o destino el puerto 53 UDP) y cuyo origen de la comunicación sea tu máquina.
+
+Dirección IP de mi máquina: 192.168.228.1
+
+Respuesta: ip.addr == 192.168.228.1 and udp.port in {53 53}
+
+5- Crea un filtro que solamente capture paquetes UDP.
+
+Respuesta: udp
+
+
+PROTOCOLO ICMP
+
+1- Abre el archivo parte1.pcap, en la captura mostrada se encuentra el envío producido por el
+comando ping -c 4 209.85.229.104.
+
+Para facilitar el análisis, es recomendable aplicar un filtro de presentación para que sólo aparezcan
+los paquetes enviados a la dirección 209.85.229.104. 
+
+Para ello, bastará con escribir (ip.addr == 209.85.229.104) en el campo de texto de filtro de la ventana principal y pulsar el botón Apply.
+
+¿Cuántos mensajes ICMP se producen, prestando especial atención a los campos tipo, código, y
+bytes de datos?. 
+
+Asimismo, analiza las cabeceras IP de cada uno de ellos, y en concreto los
+campos longitud de la cabecera y longitud total.
+
+
+Respuesta:
+
+121	11.071523	192.168.117.203	209.85.229.104	ICMP	98	Echo (ping) request  id=0x3902, seq=0/0, ttl=64 (reply in 122)
+122	11.108414	209.85.229.104	192.168.117.203	ICMP	98	Echo (ping) reply    id=0x3902, seq=0/0, ttl=48 (request in 121)
+131	12.071680	192.168.117.203	209.85.229.104	ICMP	98	Echo (ping) request  id=0x3902, seq=1/256, ttl=64 (reply in 134)
+134	12.108714	209.85.229.104	192.168.117.203	ICMP	98	Echo (ping) reply    id=0x3902, seq=1/256, ttl=48 (request in 131)
+144	13.072002	192.168.117.203	209.85.229.104	ICMP	98	Echo (ping) request  id=0x3902, seq=2/512, ttl=64 (reply in 145)
+145	13.109124	209.85.229.104	192.168.117.203	ICMP	98	Echo (ping) reply    id=0x3902, seq=2/512, ttl=48 (request in 144)
+156	14.072312	192.168.117.203	209.85.229.104	ICMP	98	Echo (ping) request  id=0x3902, seq=3/768, ttl=64 (reply in 157)
+157	14.109319	209.85.229.104	192.168.117.203	ICMP	98	Echo (ping) reply    id=0x3902, seq=3/768, ttl=48 (request in 156)
+
+Se muestran 8 mensajes ICMP de tipo Ethernet II ipv4, de 98 bytes de datos y códgio 0x3902. 
+
+Todos tienen una cabecera IP de longitud de cabecera de 20 bytes y  longitud total de 84 bytes
+
+
+2- Para comprobar el funcionamiento del protocolo en otras condiciones, en el mismo fichero que tenemos abierto se encuentra la captura relativa a la ejecución del comando ping -l (tamañopaquete) –c (número-de-paquetes) 192.168.117.205. Para controlar el número de mensajes que
+se envían sería conveniente que en el filtro de presentación se indicase (ip.addr ==192.168.117.205).
+
+¿Cuántos mensajes se producen ahora en cada envío y recepción?, ¿cuántos paquetes se han
+enviado?, Analiza los parámetros de la cabecera que te indican cómo están fragmentados los
+mensajes, comprueba para ello los campos don’t fragment, more fragment y fragment offset
+de un envío y de una recepción.
+
+Respuesta:
+
+Se producen en cada envío y recepción 2 mensajes, enviándose en total 12 paquetes.
+
+Petición (request)-> Fragment Offset: 2960, Don't fragment: Not set,More fragments: Not set
+
+Envío (reply) -> Don't fragment: Not set,More fragments: Not set, Fragment Offset: 2960
+
+PROTOCOLO DNS
+
+1- Continuando con el fichero parte1.pcap, vamos a analizar la información que se genera en la
+captura cuando se ejecuta el comando ping -c 1 www.google.es.
+
+Para facilitar el análisis, es recomendable aplicar un filtro de presentación para que sólo aparezcan
+los paquetes de este protocolo (dns).
+
+¿Cuántos mensajes DNS se generan?, ¿Qué tipo de consulta se realiza?. El tipo de las consultas viene detallado en el campo Queries de la cabecera del protocolo DNS. 
+
+¿En qué puerto y dirección IP está localizado el servidor de nombres?
+
+¿Qué dirección IP tiene el dominio www.google.es?¿Que protocolo de capa de transporte utiliza los paquetes DNS?
+
+
+Respuesta:
+
+Se generan 2 mensajes DNS, realizando consulta de tipo A.
+
+El servidor de nombres google.com está localizado en el puerto UDP 53 y tiene asociado la dirección IP 150.214.110.3
+
+El dominio de www.google.es tiene asociado la dirección IP 192.168.117.203.
+
+Los paquetes DNS utilizan el protocolo de capa de transporte UDP
+
+
+PROTOCOLO ARP
+
+1- En el fichero parte1.pcap, se encuentra almacenado los paquetes producidos por la ejecución del
+comando ping –c 3 192.168.117.205. 
+
+Para facilitar el análisis, es recomendable aplicar un filtro de presentación para que sólo aparezcan
+los paquetes del protocolo ARP (arp).
+
+¿Se han generado paquetes ARP para resolver la dirección IP indicada?.
+
+Respuesta: Se han generado 5 paquetes arp para resolver la dirección 192.168.117.205
+
+Analice el mensaje ARP que pregunta por la dirección MAC de la dirección IP indicada en el
+destino del comando ping y obtenga la siguiente información de los campos de dicho protocolo.
+¿Cuál es la dirección MAC del remitente?
+
+Respuesta: c4:2c:03:14:9d:56
+
+Revisa de nuevo los campos del datagrama de dicho protocolo y determina si se trata de un
+mensaje de petición o de una respuesta ARP. ¿Qué campo nos da esta información?
+
+Respuesta: Esta información nos la da el campo Address Resolution Protocol
+
+Busca el paquete ARP que es la respuesta de la petición realizada y obtén cuál es la dirección
+física y dirección IP del destinatario del mensaje, ¿a quién corresponde dicha dirección física?
+
+Respuesta: Dirección IP del destinatario: 192.168.117.205, Dirección física del destinatario: 00:24:8c:52:d1:62
+
+Dicha dirección física corresponde a la dirección MAC del host de consulta
+
+
+PROTOCOLO UDP
+
+1- Analice los paquetes y comente cuáles son las direcciones IP y puertos involucrados en la
+comunicación?
+
+Respuesta: En la comunicación, el emisor tiene asignado el puerto 32768 y la dirección IP 10.0.0.2; y el receptor tiene asignado el puerto 33000 
+y la dirección IP 11.0.0.2
+
+
+¿Cuál es el número de paquetes UDP y el número de bytes de datos intercambiados?, ¿qué datos
+se han mandado?
+
+Respuesta: Se han enviado 2 paquetes UDP, intercambiando 95 bytes de datos. Se han mandado 5 bytes de datos en el paquete UDP1 y 6 bytes de datos en el paquete UDP2
+
+
+PROTOCOLO TCP
+
+1- Para analizar la estructura de este protocolo con Wireshark vamos a abrir el archivo tcp.pcap
+donde se encuentra almacenado la captura de una comunicación TCP.
+Analice los paquetes y responda, suponiendo que se emplea la comunicación cliente/servidor
+¿Cuál es la dirección IP y el puerto del cliente TCP?, y ¿la dirección IP y el puerto del servidor
+TCP?
+
+Respuesta: El cliente TCP tiene asignado el puerto 34000 y la dirección IP 11.0.0.2; el servidor TCP tiene asignado el puerto 60709 y la dirección IP 10.0.0.2
+
+¿Cuántos segmentos TCP se han enviado desde el cliente al servidor? y ¿desde el servidor al
+cliente?
+
+Respuesta: El servidor ha enviado 6 segmentos TCP al cliente. El cliente ha enviado 4 segmentos TCP al servidor
+
+¿Qué extremo cierra primero la conexión?
+
+Respuesta: El servidor
+
+
+En el menú de Wireshark, seleccionando Edit->Preferences-> Protocols->TCP, puedes desactivar la opción Relative Sequence Numbers. 
+De esta forma podrás observar los números de secuencia reales, en lugar de los números relativos que muestra por omisión Wireshark.
+
+¿Cuántos bytes de datos envía el cliente al servidor?. Indica cuáles son los números de secuencia
+del SYN y del FIN que envía el cliente y qué relación tienen con la cantidad de datos enviada al
+servidor.
+
+Respuesta: El cliente envía al servidor 3 bytes de datos
+
+El cliente envía el número de secuencia de SYN es 1363273423 (sincroniza los números de secuencia iniciales, siendo el siguiente número de secuencia donde se almacena
+el primer byte de datos) y el número de secuencia de FIN es 1363273424 (representa el número de secuencia final de la conexión, siendo el anterior número de secuencia
+donde se almacena el último byte de datos).
+
+Se relacionan en que una vez finalizada la conexión, su diferencia nos da el número de bytes enviados
+
+¿Cuántos bytes de datos envía el servidor al cliente?. Indica cuáles son los números de secuencia
+del SYN y del FIN que envía el servidor y qué relación tienen con la cantidad de datos enviada al
+servidor.
+
+Respuesta: El servidor envía 14 bytes de datos.
+
+El número de secuencia del SYN es 1367801698 (sincroniza los números de secuencia iniciales, siendo el siguiente número de secuencia donde se almacena
+el primer byte de datos) y el número de secuencia de FIN es 1367801710 (representa el número de secuencia final de la conexión, el cual almacena el ultimo
+byte de datos)
+
+Se relacionan en que una vez finalizada la conexión, su diferencia nos da el número de bytes enviados
+
+Cuando hayas observado los números de secuencia reales, vuelve a activar la opción Relative
+Sequence Numbers y vuelve a contestar las últimas dos preguntas realizadas.
+
+Respuesta: El cliente envía al servidor 3 bytes de datos
+
+El cliente envía el número de secuencia de SYN es 0 (indica el numero de secuencia inicial, siendo el siguiente numero de secuencia donde se empiezan a alamacenar
+los bytes de datos) y el número de secuencia de FIN es 1 (indica el numero de secuencia en el que se ha guardado el ultimo byte de datos).
+
+El servidor envía 14 bytes de datos.
+
+El cliente envía el número de secuencia de SYN es 0 (indica el numero de secuencia inicial, siendo el siguiente numero de secuencia donde se empiezan a alamacenar
+los bytes de datos) y el número de secuencia de FIN es 12 (indica el numero de secuencia en el que se ha guardado el ultimo byte de datos).
+
+
+PROTOCOLO HTTP
+
+1- Para analizar la estructura de este protocolo con Wireshark vamos a abrir el archivo parte2.pcap
+donde se encuentra almacenado la captura del acceso a la web localizada en 195.81.202.109
+
+Identifica el primer mensaje http (después de seleccionar la opción follow TCP Stream) y obtén
+de este mensaje la dirección IP del destino, la versión del protocolo HTTP que se está utilizando
+y la dirección IP del origen.
+
+Respuesta:
+
+Filtro aplicado -> ip.addr == 195.81.202.109 and tcp.port == 80
+
+Dirección IP del destino-> 192.168.117.203:49716
+
+Version del protocolo HTTP: HTTP/1.1
+
+Direccion IP de origen -> 195.81.202.109:80
+
+
+2- Identifica un mensaje cuyo método que solicita un archivo del servidor, estos mensajes se
+identifican por llevar el comando GET. Consulta el campo URI del protocolo http y especifica la
+dirección donde se localiza dicho archivo.
+
+Respuesta: /participa/lfm/2010-2011/flash/fotos/cambios.jpg
+
+PROTOCOLO TELNET
+
+1- Para analizar la estructura de este protocolo con Wireshark vamos a abrir el fichero telnet.pcap.
+Para facilitar el análisis, es recomendable aplicar un filtro de presentación indicando “telnet” para
+mostrar únicamente mensajes de este protocolo.
+
+Mira la información de los paquetes que has enviado con este protocolo y determina el puerto
+que se utiliza para telnet.
+
+Respuesta: Puerto origen es el 1254 y el puerto destino es el puerto 23
+
+2- Lee el contenido de los paquetes, para ello tendrás que mirar el contenido en ASCII del campo
+Data del protocolo telnet. Localiza la solicitud de login y password del servidor, así como la
+lectura de los datos que se enviaron, ten presente que puedes necesitar varios paquetes para
+obtener finalmente el login y password que se escribieron. 
+
+¿Qué nombre de usuario y qué contraseña utilizó para iniciar sesión?
+
+Respuesta: 
+
+Nombre de usuario: .."........"ffaakkee
+Contraseña: user
+
+
+PROTOCOLO SSH
+
+1- Mira la información de los paquetes que has enviado con este protocolo y determina el puerto
+que se utiliza para ssh.
+
+Respuesta: 
+
+Puerto de origen: 22
+
+Puerto destino: 49748
+
+2- Lee el contenido de los paquetes, para ello tendrás que mirar la ventana que muestra el contenido
+ASCII de los campos del protocolo ssh. ¿Encuentras el login y las claves que se han introducido
+para iniciar la sesión remota?.
+
+Respuesta:
+
+login: jlolmo; clave: jlolmopass
+
+login: anonymous; clave: daigual
+
+
+

@@ -1,0 +1,68 @@
+PARTE 1---
+PASO 1---
+Vamos a R1
+. enable
+. configure terminal
+. ipv6 unicast-routing
+. interface gigabitEthernet 0/0/0
+. ipv6 address 2001:db8:acad:1::1/64
+. no shutdown
+. exit
+. interface serial 0/1/0
+. ipv6 address 2001:db8:acad:2::1/64
+. no shutdown
+. exit
+
+Vamos a R2
+. enable
+. configure terminal
+. ipv6 unicast-routing
+. interface gigabitEthernet 0/0/0
+. ipv6 address 2001:db8:acad:3::1/64 
+. no shutdown
+. exit
+. interface serial 0/1/0
+. ipv6 address 2001:db8:acad:2::2/64
+. exit
+
+Para configurar el default gateway de R2
+Debemos de estar en global config 
+. ipv6 route ::/0 2001:db8:acad:2::1
+
+
+Para configurar el default gateway de R1
+. ipv6 route ::/0 2001:db8:acad:2::2
+
+PARTE 2---
+
+Vamos a PC-1,desktop, ip configuration y 
+ponemos automatic la ipv6.
+Hacemos lo mismo con PC-2
+
+
+PARTE 3---
+
+PASO 2---
+Vamos al R1, configuracion global
+. ipv6 dhcp pool R1-STATELESS
+. dns-server 2001:db8:acad::254
+. domain-name Stateless.com
+. exit
+. interface gigabitEthernet 0/0/0
+. ipv6 dhcp server R1-STATELESS
+
+PASO 3---
+Vamos al R2, configuracion global
+. ipv6 dhcp pool R2-STATEFUL
+. address prefix 2001:db8:acad:3:aaaa::/80
+. dns-server 2001:db8:acad::254
+. domain-name Stateful.com
+. exit
+. interface gigabitEthernet 0/0/0
+. ipv6 dhcp server R2-STATEFUL
+
+
+
+
+
+

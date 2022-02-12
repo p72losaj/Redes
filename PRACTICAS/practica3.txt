@@ -1,0 +1,167 @@
+CONFIGURAR EL NOMBRE DEL HOST
+
+Router> enable
+Router# configure terminal
+Router(config)# hostname <name>
+
+CONTRASEÑA DE ACCESO A CONSOLA
+
+Router(config)# line console 0
+Router(config line)# password <contrasena>
+Router(config line)# login
+
+CONTRASEÑA DE ACCESO A MODO PRIVILEAGIADO
+
+Router(config)# enable password <contrasena> 
+
+CONTRASEÑA DE ACCESO SECRETA A MODO PRIVILEGIADO
+
+Router(config)# enable secret <contrasena> 
+
+CONTRASEÑA TERMINAL VIRTUAL (TELNET)
+
+R1(config)# line vty 0 4
+R1(config-line)# password <contrasena>
+R1(config-line)# login
+
+ENCRIPTAR LAS CONTRASEÑAS DE TEXTO NO CIFRADO
+
+Router(config)# service password-encryption
+
+HABILITA UN MÍNIMO DE 10 CARACTERES PARA TODAS LAS CONTRASEÑAS
+
+Router(config)# security passwords min-length 10
+
+CONFIGURAR DOMINIO SSH
+
+Router(config)# ip domain-name <nombre del dominio>
+
+CREAR EL PAR DE CLAVES RSA
+
+Router(config)# crypto key generate rsa moduls 1024
+
+CREAR USUARIO CON CONTRASEÑA PROTEGIDA
+
+Router(config)#username	<usuario> privilege 15 secret <contrasena>
+
+CONFIGURAR LAS LINEAS VTY PARA ACEPTAR CONEXIONES SSH Y TELNET
+
+Router(config)# line vty 0 4
+
+HABILITAR EL SSH
+
+Router(config-line)# transpot input ssh telnet
+
+HABILITAR EL LOGIN A LA BASE DE DATOS LOCAL
+
+Router(config-line)# login local
+
+DESACTIVAR LA BÚSQUEDA DNS
+
+Router(config)# no ip domain lookup
+
+GUARDAR LA CONFIGURACION EN EJECUCION EN EL ARCHIVO NVRAM
+
+Router# copy running-config startup-config
+
+BORRAR LAS VLANS DE UN SWITCH
+
+Switch# delete vlan.dat
+
+BORRAR EL ARCHIVO DE CONFIGURACION DE INICIO
+
+Router# erase startup-config
+
+RECARGAR EL DISPOSITIVO
+
+Router# reload
+
+MOSTRAR LA VERSIÓN DE LA IMAGEN IOS DEL ROUTER
+
+Router# show version
+
+MOSTRAR LA CONFIGURACION ACTUAL
+
+Router# show running-config
+
+MOSTRAR LA CONFIGURACION DE LA INTERFAZ G0/0
+
+Router# show ip interface gigabitEthernet 0/0
+
+MOSTRAR CACHÉ ARP
+
+R3#show arp 
+
+MOSTRAR LA TABLA DE ENRUTAMIENTO
+
+R3#show ip route 
+
+MOSTRAR INFORMACION VLAN
+
+R3#show vlan-switch
+
+MOSRTRAR INFORMACION DE LAS INTERFACES
+
+R3#show interfaces 
+
+MOSTRAR CONFIGURACION RESUMIDA DE LAS INTERFACES VLAN6
+
+R3#show ipv6 interface brief 
+
+MOSTRAR LA CONFIGURACION DE LA INTERFAZ G0/0 EN IPV6
+
+R3#show ipv6 interface gigabitEthernet 0/0
+
+INTRODUCIR MENSAJE MOTD DE INICIO DE SESION
+
+R3(config)#banner motd #mensaje#
+
+EVITAR BUSQUEDAS DNS NO DESEADAS
+
+R3(config)#no ip domain-lookup
+
+VERIFICAR RUTA DE LOS PAQUETES
+
+R3#traceroute <direccion IP>
+
+PROBAR CONECTIVIDAD A UN DISPOSITIVO REMOTO
+
+Router# ping <direccion IP>
+
+CONFIGURAR INTERFAZ
+
+Switch(config)#interface <interfaz>
+
+Switch(config-if)#ip address <direccion IP> <MASCARA>
+
+ACTIVAR INTERFAZ
+
+R3(config-if)#no shutdown
+
+DESCRIBIR INTERFAZ
+
+R3(config-if)#description <descripcion de la interfaz>
+
+CONFIGURAR IPV4 VLAN
+
+Switch(config)# interface VLAN1
+
+CONFIGURAR EL GATEWAY PREDETERMINADO
+
+Switch(config)# ip default-gateway <direccion IP>
+
+CONFIGURAR DIRECCION IPV6 DE UNA INTERFAZ
+
+R3(config-if)# ipv6 address <direccion IPV6>
+
+CONFIGURAR DIRECCION IP LINK-LOCAL IPV6
+
+R3(config-if)# ipv6 address <direccion IPV6> link-local
+
+HABILITAR EL ROUTING IPV6
+
+R3(config)# ipv6 unicast-routing
+
+
+
+

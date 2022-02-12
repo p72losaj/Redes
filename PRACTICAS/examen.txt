@@ -1,0 +1,141 @@
+Tarea 1. Completar direccionamiento de la red
+
+Paso 1. Asigne la dirección de subred adecuada a la red que está sin asignar (LAN1 de HQ).
+
+La LAN ISP usará la red 209.165.202.224/27.
+El enlace entre ISP y HQ usará la red 209.165.202.0/30.
+La red 192.168.40.0/24 se dividió en subredes de acuerdo a los siguientes requisitos:
+	1. La LAN1 de HQ requiere 20 direcciones IP de host (pendiente asignar).
+	2. La LAN2 de HQ requiere 50 direcciones IP de host (192.168.40.64/26).
+	3. La LAN1 BRANCH requiere 30 direcciones IP de host (192.168.40.128/27).
+	4.La LAN2 BRANCH requiere 12 direcciones IP de host (192.168.40.160/28).
+	5.El enlace entre HQ y BRANCH requiere una dirección IP en cada extremo (192.168.40.176/30).
+
+Todas las redes tienen asignadas sus direcciones de subred. 
+Se pide que se indique cuál sería la dirección de red que debería usar la LAN1 de HQ y la máscara de red para cumplir con los requisitos establecidos para esa subred, 
+considerando que se le asigne el rango lo más ajustado posible a sus necesidades, 
+y que tenga asignado las direcciones del bloque del extremo inferior que están disponibles. 
+Considere que las subredes asignadas al resto de redes no se pueden modificar.
+
+RED: 192.168.40.00000000
+
+192.168.40||.0 /24
+192.168.40||.1
+
+[192.168.40.0-192.168.40.255]
+
+LAN1 HQ->20 direcciones: 2^5 = 32 -> 1 host de red, 1 host de gateway y 30 host -> Máscara: 32-5 = /27
+
+Paso 2. Asigne las direcciones correspondientes para las interfaces de los dispositivos sin asignar.
+
+LAN 1 -> 5 bits
+
+192.168.40.000||00000 -> 192.168.40.0
+Mascara: 255.255.255.224
+192.168.40.000||11111 -> 192.168.40.31
+
+[192.168.40.0 - 192.168.40.30]
+
+1. Asigne la primera dirección de host válida de la red LAN1/HQ para la interfaz Fa0/0 de HQ.
+
+HQ(config)#interface fastEthernet 0/0
+HQ(config-if)#ip address 192.168.40.1 255.255.255.224
+HQ(config-if)#no shutdown 
+
+2. Asigne la última dirección de host válida de la red LAN1/HQ para PC3.
+
+Dirección IP: 192.168.40.30 Mascara: 255.255.255.224
+Gateway: 192.168.40.1
+
+3. Asigne la primera dirección de host válida en el enlace WAN HQ/BRANCH para la interfaz Se1/0 de HQ.
+
+HQ(config)#interface serial 1/0
+HQ(config-if)#ip address 192.168.40.177 255.255.255.252
+HQ(config-if)#no shutdown 
+
+4. Asigne la primera dirección de host válida en el enlace WAN HQ/ISP para la interfaz Se1/1 de HQ.
+
+HQ(config)#interface serial 1/1
+HQ(config-if)#ip address 209.165.202.1 255.255.255.252
+HQ(config-if)#no shutdown 
+
+5. Asigne la primera dirección de host válida de la red LAN2/HQ para la interfaz Fa0/1 de HQ.
+
+HQ(config)#interface fastEthernet 0/1
+HQ(config-if)#ip address 192.168.40.65 255.255.255.192
+HQ(config-if)#no shutdown 
+
+6. Configurar el router HQ como servidor de DHCP: excluya las primeras 10 direcciones de la LAN2 de HQ, 
+cree un pool de DHCP llamado HQ-LAN2, configúrelo para que incluya la dirección de red y el Gateway predeterminado.
+
+HQ(config)#ip dhcp excluded-address 192.168.40.65 192.168.40.75
+HQ(config)#ip dhcp pool HQ-LAN2
+HQ(dhcp-config)#network 192.168.40.64 255.255.255.192
+HQ(dhcp-config)#default-router 192.168.40.65
+
+Tarea 2. Configuración y activacion de interfaces
+
+Paso 1. Configure el router HQ
+Configure las interfaces en HQ con las direcciones IP obtenidas en la tarea anterior.
+
+Paso 2. Configure las interfaces Ethernet de PC3, PC4 y PC5
+Configure la interfaz Ethernet del PC3 con la dirección IP obtenida en la tarea anterior, asigne la pasarela de forma apropiada.
+Configure las interfaces Ethernet de PC4 y PC5 para que reciban información de direccionamiento IP de DHCP.
+
+Activamos la conexión DHCP en los PC4 y PC5
+
+Tarea 3: Verificar la conectividad del dispositivo de siguiente salto
+Aún no debe haber conectividad entre los dispositivos finales. 
+Sin embargo, puede comprobar la conectividad entre dos routers y entre un dispositivo final y su gateway por defecto.
+
+Paso 1: Verifique la conectividad BRANCH
+Verifique que BRANCH puede realizar un ping a través del enlace WAN a HQ y que HQ puede realizar un ping a través del enlace WAN que comparte con ISP.
+
+Paso 2: Verifique la conectividad PC3, PC4 y PC5
+Verifique que el PC3, PC4 y PC5 pueden realizar ping hacia sus respectivos gateways por defecto.
+
+Tarea 4: Configurar el enrutamiento RIPv2 y estático en el router BRANCH.
+Tenga en cuenta las redes que deben incluirse en las actualizaciones RIP que se envían mediante BRANCH. 
+Incluya los comandos para habilitar la versión 2 de RIP, y elimine las interfaces que no necesitan recibir actualizaciones RIP. 
+Añada una ruta por defecto para llegar a cualquier otra red, especificando el gateway que considere oportuno.
+
+Branch(config)#router rip
+Branch(config-router)#version 2
+Branch(config-router)#no auto-summary 
+Branch(config-router)#passive-interface fastEthernet 0/0
+Branch(config-router)#passive-interface fastEthernet 0/1
+Branch(config-router)#network 192.168.40.176 
+Branch(config)#ip route 0.0.0.0 0.0.0.0 192.168.40.177
+
+Tarea 5: Configurar el enrutamiento RIPv2 y estático en el router HQ
+Tenga en cuenta las redes que deben incluirse en las actualizaciones RIP que se envían mediante HQ. 
+Incluya los comandos para habilitar la versión 2 de RIP, y elimine las interfaces que no necesitan recibir actualizaciones RIP. 
+Añada una ruta por defecto para llegar a cualquier otra red, especificando como gateway el router ISP.
+
+HQ(config)#router rip
+HQ(config-router)#version 2
+HQ(config-router)#no auto-summary 
+HQ(config-router)#passive-interface FastEthernet 0/0
+HQ(config-router)#passive-interface FastEthernet 0/1
+HQ(config-router)#network 192.168.40.0
+HQ(config-router)#network 209.165.202.0
+HQ(config)#ip route 0.0.0.0 0.0.0.0 209.165.202.2
+
+Tarea 6: Configurar el enrutamiento estático en el router ISP
+Configure rutas estáticas en ISP para todo el tráfico destinado a las direcciones que se utilizan en las LAN BRANCH y las LAN HQ, 
+no debe utilizar rutas por defecto.
+
+ISP(config)#ip route 192.168.40.128 255.255.255.224 209.165.202.1
+ISP(config)#ip route 192.168.40.160 255.255.255.240 209.165.202.1
+ISP(config)#ip route 192.168.40.0 255.255.255.224 209.165.202.1
+ISP(config)#ip route 192.168.40.64 255.255.255.192 209.165.202.1
+
+Tarea 7: Agregar un registro de recurso en el DNS
+En el servidor DNS, agregue el registro de recurso: redescomputadores.com, como un nombre asignado a la dirección IP: 209.165.202.227/27.
+
+Server pt -> Services -> DNS -> Name: redescomputadores.com; Address: 209.165.202.227
+
+
+
+
+

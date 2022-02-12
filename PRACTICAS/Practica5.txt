@@ -1,0 +1,238 @@
+
+EJERCICIO DHCP
+
+PARTE 1: CONFIGURAR UN ROUTER COMO SERVIDOR DHCP
+
+PASO 1. Configurar las direcciones IPv4 excluidas.
+
+Configure el R2 para excluir las primeras 10 direcciones de las LAN del R1 y del R3. 
+El resto de las direcciones deben estar disponibles en el conjunto de direcciones DHCP.
+
+R1 -> 192.168.10.1
+
+R3 -> 192.168.30.1
+
+R2(config)#ip dhcp excluded-address 192.168.10.1 192.168.10.10
+
+R2(config)#ip dhcp excluded-address 192.168.30.1 192.168.30.10
+
+Paso 2. Crear un conjunto de DHCP en R2 para la LAN de R1.
+
+a.     Cree un conjunto de DHCP llamado R1-LAN (con distinción entre mayúsculas y minúsculas).
+
+R2(config)#ip dhcp pool R1-LAN
+
+b.    Configure el conjunto DHCP para que incluya la dirección de red, el gateway predeterminado y la dirección IP del servidor DNS.
+
+R2(dhcp-config)#network 192.168.10.11 255.255.255.0
+R2(dhcp-config)#default-router 192.168.10.1
+R2(dhcp-config)#dns-server 192.168.20.254
+
+Paso 3:     Crear un conjunto de DHCP en R2 para la LAN de R3.
+
+a.     Cree un conjunto de DHCP llamado R3-LAN (con distinción entre mayúsculas y minúsculas).
+
+R2(config)#ip dhcp pool R3-LAN
+
+b.    Configure el conjunto DHCP para que incluya la dirección de red, el gateway predeterminado y la dirección IP del servidor DNS.
+
+R2(dhcp-config)#network 192.168.30.11 255.255.255.0
+R2(dhcp-config)#default-router 192.168.30.1
+R2(dhcp-config)#dns-server 192.168.20.254
+
+PARTE 2:     Configurar la retransmisión de DHCP
+
+Paso 1:     Configurar el R1 y el R3 como agentes de retransmisión DHCP.
+
+R1(config)#interface gigabitEthernet 0/0
+R1(config-if)#ip helper-address 10.1.1.2
+
+R3(config)#interface gigabitEthernet 0/0
+R3(config-if)#ip helper-address 10.2.2.2
+
+Paso 2:     Configurar PC1 y PC2 para que reciban información de asignación de direcciones IP de DHCP.
+
+
+PARTE 3:     Configurar R2 como cliente DHCP
+
+a.     Configure la interfaz Gigabit Ethernet 0/1 en R2 para que reciba la asignación de direcciones IP de DHCP y active la interfaz.
+
+Nota: utilice la función Fast Forward Time (Adelantar el tiempo) de Packet Tracer para acelerar el proceso o espere hasta que el R2 forme una adyacencia de EIGRP con el router del ISP.
+
+R2(config)#interface gigabitEthernet 0/1
+
+R2(config-if)#ip address dhcp
+
+R2(config-if)#no shutdown 
+
+b.    Utilice el comando show ip interface brief para verificar que R2 haya recibido una dirección IP de DHCP.
+
+
+EJERCICIO NAT DINAMICO
+
+Parte 1:     configurar NAT dinámica    
+
+Paso 1: Configurar el tráfico que se desea permitir.
+
+En el R2, configure una instrucción para que la ACL 1 permita cualquier dirección que pertenezca a 172.16.0.0/16.
+
+R2(config)#access-list 1 permit 172.16.0.0 0.0.255.255
+
+Paso 2:     configurar un conjunto de direcciones para NAT.
+
+Configure el R2 con un conjunto de NAT que utilice las cuatro direcciones en el espacio de direcciones 209.165.76.196/30.
+
+Observe que en la topología hay tres rangos de red que se traducirán según la ACL creada. ¿Qué sucedería si más de dos dispositivos intentaran acceder a Internet?
+
+R2(config)#ip nat pool NAT1 209.165.76.196 209.165.76.199 netmask 255.255.255.252
+
+Paso 3:     asociar la ACL 1 con el conjunto de NAT.
+
+R2(config)#ip nat inside source list 1 pool NAT1
+
+Paso 4:     configurar las interfaces de NAT.
+
+Configure las interfaces del R2 con los comandos de NAT inside y outside apropiados.
+
+R2(config)#interface serial 0/0/1
+R2(config-if)#ip nat inside
+R2(config)#interface serial 0/0/0
+R2(config-if)#ip nat outside 
+
+Parte 2:      verificar la implementación de NAT
+
+Paso 1:     acceder a los servicios de acceso a través de Internet.
+
+Mediante el navegador web de la L1, la PC1 o la PC2, acceda a la página web del Servidor1.
+
+http://209.165.201.5
+
+Paso 2:     observar las NAT.
+
+Vea las traducciones NAT en el R2.
+
+R2# show ip nat translations
+
+
+
+EJERCICIO NAT ESTATICO
+
+Parte 1:     probar el acceso sin NAT
+
+Paso 1:     intentar conectarse al Servidor1 mediante Simulation Mode (Modo de simulación).    
+
+a.     Desde la PC1 o la L1, intente conectarse a la página web de Server1 en 172.16.16.1. Utilice el navegador web para navegar el Servidor1 en 172.16.16.1. Los intentos deberían fallar.
+
+b.    Desde la PC1, emita un comando ping a la interfaz S0/0/0 de R1. El ping debe ser correcto.
+
+Paso 2:     ver la tabla de routing del R1 y la configuración en ejecución.
+
+a.     Observe la configuración en ejecución de R1. Observe que no hay comandos que se refieran a NAT.
+
+b.    Verifique que la tabla de routing no tenga entradas que se refieran a las direcciones IP utilizadas por la PC1 y la L1.
+
+c.     Verifique que el R1 no utilice NAT.
+
+R1# show ip nat translations
+
+Parte 2:     configurar NAT estática
+
+Paso 1:     configurar instrucciones de NAT estática.
+
+Consulte la topología. Cree una traducción de NAT estática para asignar la dirección interna del Servidor1 a su dirección externa.
+
+R1(config)#ip nat inside source static 172.16.16.1 64.100.50.1
+
+
+Paso 2:     configurar las interfaces.
+
+Configure las interfaces internas y externas correctas.
+
+R1(config)#ip nat inside source static 172.16.16.1 64.100.50.1
+R1(config-if)#ip nat inside
+R1(config)#interface serial 0/0/0
+R1(config-if)#ip nat outside 
+
+Parte 3:     probar el acceso con NAT
+
+Paso 1:     verificar la conectividad a la página web del Servidor1.
+
+a.     Abra el símbolo del sistema en la PC1 o la L1, e intente emitir el comando ping a la dirección pública de Server1. Los pings se deben realizar correctamente.
+
+b.    Verifique que tanto la PC1 como la L1 ahora puedan acceder a la página web de Server1.
+
+Paso 2:     observar las NAT.
+
+Utilice los siguientes comandos para verificar la configuración de NAT estática:
+
+show running-config
+
+show ip nat translations
+
+show ip nat statistics
+
+
+
+
+
+EJERCICIO NAT SOBRECARGA
+
+Parte 1:    configurar NAT dinámica con PAT
+
+Paso 1:     configurar el tráfico que se permitirá para NAT.
+
+En el R2, configure una ACL estándar con el nombre R2NAT que utilice tres instrucciones para permitir, en orden, 
+los siguientes espacios de direcciones privadas: 192.168.10.0/24, 192.168.20.0/24 y 192.168.30.0/24.
+
+R2(config)#ip access-list standard R2NAT
+R2(config-std-nacl)#permit 192.168.10.0 0.0.0.255
+R2(config-std-nacl)#permit 192.168.20.0 0.0.0.255
+R2(config-std-nacl)#permit 192.168.30.0 0.0.0.255
+
+
+Paso 2:     configurar un conjunto de direcciones para NAT.
+
+Configure el R2 con un conjunto de NAT con el nombre R2POOL que utilice la primera dirección en el espacio de direcciones 209.165.202.128/30. 
+La segunda dirección se utiliza para la NAT estática más adelante, en la Parte 2.
+
+R2(config)#ip nat pool R2POOL 209.165.202.129 209.165.202.129 netmask 255.255.255.252
+
+Paso 3:     asociar la ACL con nombre con el conjunto de NAT y habilitar PAT.
+
+R2(config)#ip nat inside source list R2NAT pool R2POOL overlead
+
+Paso 4:     configurar las interfaces de NAT.
+
+Configure las interfaces del R2 con los comandos de NAT inside y outside apropiados.
+
+R2(config)#interface serial 0/0/0
+R2(config-if)#ip nat inside 
+R2(config)#interface serial 0/0/1
+R2(config-if)#ip nat inside 
+R2(config)#interface serial 0/1/0
+R2(config-if)#ip nat outside
+
+Parte 2:    configurar NAT estática
+
+Consulte la topología. Cree una traducción de NAT estática para asignar la dirección interna de local.pka a su dirección externa.
+
+R2(config)#ip nat inside source static 192.168.20.254 209.165.202.130
+R2(config)#interface fastEthernet 0/0
+R2(config-if)#ip nat inside
+
+Parte 3:    verificar la implementación de NAT
+
+Paso 1:     acceder a los servicios de acceso a través de Internet.
+
+a.     Mediante el navegador web de la PC1 o la PC3, acceda a la página web de cisco.pka.
+
+b.     Mediante el navegador web de la PC4, acceda a la página web de local.pka.
+
+Paso 2:     observar las NAT.
+
+Vea las traducciones NAT en el R2.
+
+R2# show ip nat translations
+
+
+

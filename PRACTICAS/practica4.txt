@@ -1,0 +1,215 @@
+ACLIP4 ESTANDAR
+
+1- LISTA DE ACCESO 10 COMIENZA CON EL RESULTADO ACL_TO_PINK_LAN
+
+R2(config)# access-list 10 remark ACL_TO_PINK_LAN
+
+2- Permitir al PC-C acceder a la LAN rosado
+
+R2(config)# access-list 10 permit host 192.168.2.50
+
+3- Solo permite la primera mitad de host en la LAN amarillo alcanzar la LAN rosado
+
+R2(config)# access-list 10 permit 192.168.1.0 0.0.0.127
+
+4- PERMITE QUE TODOS LOS HOST DE LA LAN AZUL ALACANZAR LA LAN ROSADO
+
+R2(config)# access-list 10 permit 172.16.1.0 0.0.0.255
+
+5- LISTA DE ACCESO SE CONFIGURA EN EL ROUTER CORRECTO, LA INTERFAZ CORRECTA Y LA DIRECCION CORRECTA
+
+R2(config)# interface gigabitEthernet 0/1
+
+R2(config)# ip access-group 10 out
+
+6- LA LISTA DE ACCESO 20 COMIENZA CON ACL_TO_BLUE_LAN
+
+R2(config)# access-list 20 remarck ACL_TO_BLUE_LAN
+
+7- Permitir que la PC-A accede a la LAN azul
+
+R2(config)# access-list 20 permit host 192.168.1.100
+
+8- DENIEGA LA LAN AMARILLO DE ALCANZAR LA LAN AZUL
+
+R2(config)# access-list 20 deny 192.168.1.0 0.0.0.255
+
+9- PERMITIR QUE LAS DEMAS REDES ALCANCEN LA LAN AZUL
+
+R2(config)# access-list 20 permit any
+
+R2(config)# interface gigabitEthernet 0/0
+
+R2(config)# ip access-group 20 out
+
+10- EN R1 CREAR UNA ACL ESTANDAR DENOMINADO ADMIN_VTY
+
+R1(config)#permit host 192.168.2.50
+
+11- APLICAR LA ACL A LAS LINEAS VTY
+
+R1(config)#line vty 0 4
+
+R1(config-line)#login local
+
+R1(config-line)#transport input ssh
+
+R1(config-line)#access-class ADMIN_VTY in
+
+
+
+ACL EXTENDIDA CON NOMBRE
+
+
+1- CREAR UNA LISTA DE ACCESO IP EXTENDIDA CON NOMBRE ACL
+
+RT1(config)#ip access-list extended ACL
+
+2- INSTRUCCION QUE DENIEGA EL ACCESO DESDE EL PC1 A SERVER1, SOLO PARA HTTP (PUERTO 80)
+
+PC1-> 172.31.1.101
+
+SERVIDOR1 -> 64.101.255.254
+
+RT1(config-ext-nacl)#deny tcp host 172.31.1.101 host 64.101.255.254 eq 80
+
+3- INSTRUCCION QUE DENIEGA EL ACCESO DESDE PC1 A SERVER1, SOLO PARA HTTPS (PUERTO 443)
+
+RT1(config-ext-nacl)#deny tcp host 172.31.1.101 host 64.101.255.254 eq 443
+
+4- INSTRUCCION QUE DENIEGA EL ACCESO DESDE PC1 A SERVER2, SOLO PARA HTTP
+
+Server2 -> 64.103.255.254
+
+RT1(config-ext-nacl)#deny tcp host 172.31.1.101 host 64.103.255.254 eq 80
+
+5- Registre la instrucción que deniega el acceso desde PC1 a Server2, solo para HTTPS
+
+RT1(config-ext-nacl)#deny tcp host 172.31.1.101 host 64.103.255.254 eq 443
+
+6 -Registre la instrucción que deniega el acceso desde PC2 a Server1, solo para FTP (solo puerto 21).
+
+PC2 -> 172.31.1.102
+
+RT1(config-ext-nacl)#deny tcp host 172.31.1.102 host 64.101.255.254 eq 21
+
+7 - Registre la instrucción que deniega el acceso desde PC2 a Server2, solo para FTP (solo puerto 21).
+
+RT1(config-ext-nacl)#deny tcp host 172.31.1.102 host 64.103.255.254 eq 21
+
+8- Registre la instrucción que deniega el acceso ICMP desde PC3 a Server1.
+
+PC3 -> 172.31.1.103
+
+SERVIDOR1 -> 64.101.255.254
+
+RT1(config-ext-nacl)#deny icmp host 172.31.1.103 host 64.101.255.254
+
+9 - Registre la instrucción que deniega el acceso ICMP desde PC3 a Server2.
+
+Server2 -> 64.103.255.254
+
+RT1(config-ext-nacl)#deny icmp host 172.31.1.103 host 64.103.255.254
+
+10 - Permitir el resto del tráfico IP.
+
+RT1(config-ext-nacl)#permit ip any any
+
+11 - Aplicar y verificar la ACL extendida
+
+RT1(config)#interface gigabitEthernet 0/0
+
+RT1(config-if)#ip access-group ACL in
+
+
+ACLIPV4 EXTENDED-NUM
+
+1- Desde el modo de configuración que corresponda en RTA, utilice el último número válido de lista de acceso extendida para configurar la ACL. Utilice los siguientes pasos para crear la primera instrucción de ACL:
+
+a) El último número de lista extendida es 199.
+
+b)     El protocolo es TCP.
+
+c)     La red de origen es 10.101.117.32.
+
+d)     El comodín se puede determinar sustrayendo 255.255.255.240 de 255.255.255.255.
+
+e)     La red de destino es 10.101.117.0.
+
+f)     El comodín se puede determinar sustrayendo 255.255.255.224 de 255.255.255.255.
+
+g)     El protocolo es Telnet.
+
+¿Cuál es la primera instrucción de ACL?
+
+RTA(config)#access-list 199 permit tcp 10.101.117.32 0.0.0.15 10.101.117.0 0.0.0.31 eq telnet
+
+2- Se permite ICMP, y se necesita una segunda instrucción de ACL. Utilice el mismo número de lista de acceso para permitir todo el tráfico ICMP, independientemente de la dirección de origen o de destino.  ¿Cuál es la segunda instrucción de ACL? (Sugerencia: utilice las palabras clave any)
+
+RTA(config)#access-list 199 permit icmp any any 
+
+3- Todo el resto del tráfico IP se rechaza de manera predeterminada.
+
+4- ¿Cuál es el comando para aplicar la ACL 199 a la interfaz Gigabit Ethernet 0/2?
+
+RTA(config)#interface gigabitEthernet 0/2
+
+RTA(config-if)#ip access-group 199 out
+
+
+ACLIPV6
+
+1- Configure una ACL con el nombre BLOCK_HTTP en el R1 con las siguientes instrucciones.
+
+a. Bloquee el tráfico HTTP y HTTPS para que no pueda llegar a Server3.
+
+R1(config)#ipv6 access-list BLOCK_HTTP 
+
+R1(config-ipv6-acl)#deny tcp any host 2001:DB8:1:30::30 eq www
+
+R1(config-ipv6-acl)#deny tcp any host 2001:DB8:1:30::30 eq 443
+
+b.    Permita el paso de todo el resto del tráfico IPv6.
+
+R1(config-ipv6-acl)#permit ipv6 any any
+
+
+2- Aplique la ACL a la interfaz más cercana al origen del tráfico que se desea bloquear.
+
+R1(config)#interface gigabitEthernet 0/1
+
+R1(config-if)#ipv6 traffic-filter BLOCK_HTTP in
+
+3- Configure una ACL con el nombre BLOCK_ICMP en el R3 con las siguientes instrucciones:
+
+a.     Bloquee todo el tráfico ICMP desde cualquier host a cualquier destino.
+
+R1(config)#ipv6 access-list BLOCK_ICMP 
+
+R3(config-ipv6-acl)#deny icmp any any
+
+b.    Permita el paso de todo el resto del tráfico IPv6.
+
+R3(config-ipv6-acl)#permit ipv6 any any
+
+4 - En este caso, el tráfico ICMP puede provenir de cualquier origen. Para asegurar que el tráfico ICMP esté bloqueado, independientemente de su origen o de los cambios que se produzcan en la topología de la red, aplique la ACL lo más carca posible del destino.
+
+R3(config)#interface gigabitEthernet 0/0
+
+R3(config-if)#ipv6 traffic-filter BLOCK_ICMP out
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
